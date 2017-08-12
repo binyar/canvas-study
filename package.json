@@ -1,0 +1,20 @@
+{
+  "name": "canvas-study",
+  "version": "1.0.0",
+  "description": "Just a demo project to learn canvas and to learn learning",
+  "dependencies": {},
+  "devDependencies": {},
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/binyar/canvas-study.git"
+  },
+  "keywords": [
+    "canvas"
+  ],
+  "author": "binyar",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/binyar/canvas-study/issues"
+  },
+  "homepage": "https://github.com/binyar/canvas-study"
+}
