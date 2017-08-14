@@ -17,18 +17,20 @@ class CircleProgress {
     }
 
     init() {
-        let o = this.options;
+        const o = this.options, self = this;
         if (this.start > 100) {
             this.start = 0;
-            this.start += o.amp;
-            this.clear();
-            this.draw();
-            this.draw({
-                color: o.deep,
-                step: this.start
-            });
         }
-        requestAnimationFrame(this.init)
+        this.start += o.amp;
+        this.clear();
+        this.draw();
+        this.draw({
+            color: o.deep,
+            step: this.start
+        });
+        requestAnimationFrame(() => {
+            self.init();
+        })
     }
 
     draw(opt) {
@@ -43,7 +45,7 @@ class CircleProgress {
         ctx.beginPath();
         ctx.strokeStyle = opt.color;
         ctx.lineWidth = opt.lineWidth;
-        ctx.arc(o.x, o.y, o.r, -Math.PI / 2, opt.step * o.step);
+        ctx.arc(o.x, o.y, o.r, -Math.PI / 2, -Math.PI / 2 + opt.step * o.step);
         ctx.stroke();
         ctx.closePath();
         ctx.restore();

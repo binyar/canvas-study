@@ -11,6 +11,7 @@ module.exports = {
         filename: 'main.js',
         publicPath: "/dist/"
     },
+    //plugins: [new webpack.optimize.UglifyJsPlugin()],
     module: {
         rules: [
             {
