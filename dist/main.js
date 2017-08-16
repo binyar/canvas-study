@@ -63,7 +63,7 @@
 /******/ 	__webpack_require__.p = "/dist/";
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 3);
+/******/ 	return __webpack_require__(__webpack_require__.s = 5);
 /******/ })
 /************************************************************************/
 /******/ ([
@@ -235,6 +235,132 @@ var Ball = function () {
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__base_utils__ = __webpack_require__(4);
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+
+
+var Ball3D = function () {
+    function Ball3D(options) {
+        _classCallCheck(this, Ball3D);
+
+        this.options = Object.assign({
+            canvas: null,
+            r: 5,
+            num: 200,
+            gravity: 0.2,
+            bounce: -0.5
+        }, options);
+        var canvas = this.options.canvas;
+
+        this.ctx = canvas.getContext('2d');
+        this.floor = canvas.height / 2;
+        this.zFloor = canvas.height * 0.7;
+        this.vx = canvas.width / 2;
+        this.vy = canvas.height / 2;
+        this.init();
+        this.draw();
+    }
+
+    _createClass(Ball3D, [{
+        key: 'init',
+        value: function init() {
+            var o = this.options;
+            this.balls = [];
+            var i = 0;
+
+            while (i < o.num) {
+                var ball = {
+                    x: 0,
+                    y: 0,
+                    z: 0,
+                    xpos: 0,
+                    ypos: -100,
+                    zpos: 0,
+                    vx: Math.random() * 10 - 5,
+                    vy: Math.random() * 10 - 5,
+                    vz: Math.random() * 10 - 5,
+                    scaleX: 1,
+                    scaleY: 1,
+                    color: __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0__base_utils__["a" /* parseColor */])(Math.random() * 0xffffff)
+                };
+                this.balls.push(ball);
+                i++;
+            }
+        }
+    }, {
+        key: 'draw',
+        value: function draw() {
+            var balls = this.balls;
+
+            var self = this,
+                o = this.options;
+            this.clear();
+            balls.map(function (ball, index) {
+                ball.vy += o.gravity;
+                ball.xpos += ball.vx;
+                ball.ypos += ball.vy;
+                ball.zpos += ball.vz;
+                if (ball.ypos > self.floor) {
+                    ball.ypos = self.floor;
+                    ball.vy *= o.bounce;
+                }
+                if (ball.zpos > -self.zFloor) {
+                    var scale = self.zFloor / (self.zFloor + ball.zpos);
+                    ball.scaleX = scale;
+                    ball.scaleY = scale;
+                    ball.x = self.vx + ball.xpos * scale;
+                    ball.y = self.vy + ball.ypos * scale;
+                    self.drawBall(ball);
+                } else {
+                    balls.splice(index, 1);
+                }
+            });
+            requestAnimationFrame(function () {
+                if (balls.length < o.num * 0.6) {
+                    self.init();
+                }
+                self.draw();
+            });
+        }
+    }, {
+        key: 'drawBall',
+        value: function drawBall(ball) {
+            var o = this.options;
+            var ctx = this.ctx;
+
+            ctx.save();
+            ctx.translate(ball.x, ball.y);
+            ctx.scale(ball.scaleX, ball.scaleY);
+            ctx.fillStyle = ball.color;
+            ctx.beginPath();
+            ctx.arc(0, 0, o.r, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.closePath();
+            ctx.restore();
+        }
+    }, {
+        key: 'clear',
+        value: function clear() {
+            var canvas = this.options.canvas;
+            var ctx = this.ctx;
+
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+        }
+    }]);
+
+    return Ball3D;
+}();
+
+/* harmony default export */ __webpack_exports__["a"] = (Ball3D);
+
+/***/ }),
+/* 3 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -312,14 +438,39 @@ var CircleProgress = function () {
 /* harmony default export */ __webpack_exports__["a"] = (CircleProgress);
 
 /***/ }),
-/* 3 */
+/* 4 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* harmony export (immutable) */ __webpack_exports__["a"] = parseColor;
+function parseColor(color, toNumber) {
+    if (toNumber === true) {
+        if (typeof color === 'number') {
+            return color | 0; //chop off decimal
+        }
+        if (typeof color === 'string' && color[0] === '#') {
+            color = color.slice(1);
+        }
+        return parseInt(color, 16);
+    } else {
+        if (typeof color === 'number') {
+            color = '#' + ('00000' + (color | 0).toString(16)).substr(-6); //pad
+        }
+        return color;
+    }
+};
+
+/***/ }),
+/* 5 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__component_CircleProgress__ = __webpack_require__(2);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__component_CircleProgress__ = __webpack_require__(3);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__component_Aqu__ = __webpack_require__(0);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__component_Ball__ = __webpack_require__(1);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__component_Ball3D__ = __webpack_require__(2);
+
 
 
 
@@ -327,6 +478,7 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 var circleCanvas = document.getElementById('progress-demo');
 var aquCanvas = document.getElementById('aqu-demo');
 var ballCanvas = document.getElementById('ball-demo');
+var ball3dCanvas = document.getElementById('ball3d-demo');
 
 new __WEBPACK_IMPORTED_MODULE_0__component_CircleProgress__["a" /* default */]({
     canvas: circleCanvas
@@ -338,6 +490,10 @@ new __WEBPACK_IMPORTED_MODULE_1__component_Aqu__["a" /* default */]({
 
 new __WEBPACK_IMPORTED_MODULE_2__component_Ball__["a" /* default */]({
     canvas: ballCanvas
+});
+
+new __WEBPACK_IMPORTED_MODULE_3__component_Ball3D__["a" /* default */]({
+    canvas: ball3dCanvas
 });
 
 /***/ })
