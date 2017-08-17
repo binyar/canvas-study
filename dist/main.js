@@ -63,11 +63,40 @@
 /******/ 	__webpack_require__.p = "/dist/";
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 5);
+/******/ 	return __webpack_require__(__webpack_require__.s = 7);
 /******/ })
 /************************************************************************/
 /******/ ([
 /* 0 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* harmony export (immutable) */ __webpack_exports__["a"] = raf;
+function raf() {
+    "use strict";
+
+    var vendors = ['webkit', 'moz'];
+    for (var i = 0; i < vendors.length && !window.requestAnimationFrame; ++i) {
+        var vp = vendors[i];
+        window.requestAnimationFrame = window[vp + 'RequestAnimationFrame'];
+        window.cancelAnimationFrame = window[vp + 'CancelAnimationFrame'] || window[vp + 'CancelRequestAnimationFrame'];
+    }
+    if (/iP(ad|hone|od).*OS 6/.test(window.navigator.userAgent) // iOS6 is buggy
+    || !window.requestAnimationFrame || !window.cancelAnimationFrame) {
+        var lastTime = 0;
+        window.requestAnimationFrame = function (callback) {
+            var now = Date.now();
+            var nextTime = Math.max(lastTime + 16, now);
+            return setTimeout(function () {
+                callback(lastTime = nextTime);
+            }, nextTime - now);
+        };
+        window.cancelAnimationFrame = clearTimeout;
+    }
+}
+
+/***/ }),
+/* 1 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -162,7 +191,7 @@ var Aqu = function () {
 /* harmony default export */ __webpack_exports__["a"] = (Aqu);
 
 /***/ }),
-/* 1 */
+/* 2 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -231,11 +260,11 @@ var Ball = function () {
 /* harmony default export */ __webpack_exports__["a"] = (Ball);
 
 /***/ }),
-/* 2 */
+/* 3 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__base_utils__ = __webpack_require__(4);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__base_utils__ = __webpack_require__(6);
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -357,7 +386,7 @@ var Ball3D = function () {
 /* harmony default export */ __webpack_exports__["a"] = (Ball3D);
 
 /***/ }),
-/* 3 */
+/* 4 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -438,7 +467,59 @@ var CircleProgress = function () {
 /* harmony default export */ __webpack_exports__["a"] = (CircleProgress);
 
 /***/ }),
-/* 4 */
+/* 5 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+var Tree = function () {
+    function Tree(options) {
+        _classCallCheck(this, Tree);
+
+        this.options = Object.assign({
+            canvas: null,
+            color: '#6CA6CD',
+            rootLength: 50
+        }, options);
+        this.ctx = this.options.canvas.getContext('2d');
+        this.init();
+    }
+
+    _createClass(Tree, [{
+        key: 'init',
+        value: function init() {
+            this.draw(20);
+        }
+    }, {
+        key: 'draw',
+        value: function draw(angel) {
+            var ctx = this.ctx;
+
+            var o = this.options;
+            ctx.save();
+            ctx.lineWidth = 1;
+            ctx.strokeStyle = o.color;
+            ctx.translate(o.canvas.width / 2, o.canvas.height);
+            ctx.rotate(0.1);
+            ctx.moveTo(o.canvas.width / 2, o.canvas.height);
+            ctx.lineTo(o.canvas.width / 2, o.canvas.height - o.rootLength);
+            ctx.translate(-o.canvas.width / 2, -(o.canvas.height - o.rootLength));
+            ctx.stroke();
+            ctx.closePath();
+            ctx.restore();
+        }
+    }]);
+
+    return Tree;
+}();
+
+/* harmony default export */ __webpack_exports__["a"] = (Tree);
+
+/***/ }),
+/* 6 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -461,39 +542,50 @@ function parseColor(color, toNumber) {
 };
 
 /***/ }),
-/* 5 */
+/* 7 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__component_CircleProgress__ = __webpack_require__(3);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__component_Aqu__ = __webpack_require__(0);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__component_Ball__ = __webpack_require__(1);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__component_Ball3D__ = __webpack_require__(2);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__base_base__ = __webpack_require__(0);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__component_CircleProgress__ = __webpack_require__(4);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__component_Aqu__ = __webpack_require__(1);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__component_Ball__ = __webpack_require__(2);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__component_Ball3D__ = __webpack_require__(3);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__component_Tree__ = __webpack_require__(5);
 
 
 
 
 
+
+
+
+__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0__base_base__["a" /* raf */])();
 var circleCanvas = document.getElementById('progress-demo');
 var aquCanvas = document.getElementById('aqu-demo');
 var ballCanvas = document.getElementById('ball-demo');
 var ball3dCanvas = document.getElementById('ball3d-demo');
+var treeCanvas = document.getElementById('tree-demo');
 
-new __WEBPACK_IMPORTED_MODULE_0__component_CircleProgress__["a" /* default */]({
+new __WEBPACK_IMPORTED_MODULE_1__component_CircleProgress__["a" /* default */]({
     canvas: circleCanvas
 });
 
-new __WEBPACK_IMPORTED_MODULE_1__component_Aqu__["a" /* default */]({
+new __WEBPACK_IMPORTED_MODULE_2__component_Aqu__["a" /* default */]({
     canvas: aquCanvas
 });
 
-new __WEBPACK_IMPORTED_MODULE_2__component_Ball__["a" /* default */]({
+new __WEBPACK_IMPORTED_MODULE_3__component_Ball__["a" /* default */]({
     canvas: ballCanvas
 });
 
-new __WEBPACK_IMPORTED_MODULE_3__component_Ball3D__["a" /* default */]({
+new __WEBPACK_IMPORTED_MODULE_4__component_Ball3D__["a" /* default */]({
     canvas: ball3dCanvas
+});
+
+new __WEBPACK_IMPORTED_MODULE_5__component_Tree__["a" /* default */]({
+    canvas: treeCanvas
 });
 
 /***/ })
