@@ -63,7 +63,7 @@
 /******/ 	__webpack_require__.p = "/dist/";
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 7);
+/******/ 	return __webpack_require__(__webpack_require__.s = 8);
 /******/ })
 /************************************************************************/
 /******/ ([
@@ -264,7 +264,7 @@ var Ball = function () {
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__base_utils__ = __webpack_require__(6);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__base_utils__ = __webpack_require__(7);
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -475,66 +475,145 @@ var _createClass = function () { function defineProperties(target, props) { for 
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
-var Tree = function () {
-    function Tree(options) {
-        _classCallCheck(this, Tree);
+var Flower = function () {
+    function Flower(options) {
+        _classCallCheck(this, Flower);
 
         this.options = Object.assign({
             canvas: null,
-            color: '#6CA6CD',
-            r: 10,
-            gravity: 0.2,
-            bounce: -0.5
+            color: '#f90003',
+            r: 10
         }, options);
+        var canvas = this.options.canvas;
+
+        var width = canvas.width,
+            height = canvas.height;
         this.ctx = this.options.canvas.getContext('2d');
-        this.x = this.options.canvas.width / 2;
-        this.y = 0;
-        this.xpos = 0;
-        this.ypos = 0;
-        this.vx = Math.random() * 5 - 5;
-        this.vy = Math.random() * 10 - 5;
+        var ctx = this.ctx;
+        if (window.devicePixelRatio) {
+            canvas.style.width = width + "px";
+            canvas.style.height = height + "px";
+            canvas.height = height * window.devicePixelRatio;
+            canvas.width = width * window.devicePixelRatio;
+            ctx.scale(window.devicePixelRatio, window.devicePixelRatio);
+        }
+
         this.init();
     }
 
-    _createClass(Tree, [{
+    _createClass(Flower, [{
         key: 'init',
         value: function init() {
-            var self = this,
-                _options = this.options,
-                canvas = _options.canvas,
-                gravity = _options.gravity,
-                r = _options.r;
-            this.vy += gravity;
-            this.ypos += this.vy;
-            this.xpos += this.vx;
-            if (this.ypos > canvas.height - r) {
-                this.ypos = canvas.height - r;
-                this.vy *= this.options.bounce;
+            for (var i = 0; i <= 180; i++) {
+                if (i % 10 === 0) {
+                    this.draw(i, 180, '#3c00a9', '#2b117f', 0.6);
+                }
             }
-            this.clear();
-            this.draw();
-            if (this.xpos + this.x < 0 || this.xpos + this.x > canvas.width) {
-                this.xpos = 0;
-                this.ypos = 0;
-                this.vx = Math.random() * 5 - 5;
-                this.vy = Math.random() * 10 - 5;
+            for (var _i = 0; _i <= 180; _i++) {
+                if (_i % 10 === 0) {
+                    this.draw(_i, 150);
+                }
             }
-            requestAnimationFrame(function () {
-                self.init();
-            });
+            for (var _i2 = 0; _i2 <= 180; _i2++) {
+                if (_i2 % 10 === 0) {
+                    this.draw(_i2, 120);
+                }
+            }
+
+            this.drawLine(20, 180, 60, 160);
+
+            this.drawLine(140, 220, 180, 230);
+
+            this.drawLine(130, 160, 150, 180);
+
+            this.drawLine(80, 210, 100, 230);
         }
     }, {
         key: 'draw',
-        value: function draw() {
+        value: function draw(rotate) {
+            var len = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 180;
+            var lineColor = arguments[2];
+            var fillColor = arguments[3];
+            var alpha = arguments[4];
             var ctx = this.ctx;
 
             var o = this.options;
             ctx.save();
             ctx.beginPath();
-            ctx.fillStyle = o.color;
-            ctx.arc(this.x + this.xpos, this.y + this.ypos, o.r, 0, Math.PI * 2);
+            ctx.translate(200, 200);
+            ctx.rotate(rotate * Math.PI / 180);
+
+            var lineGrd = ctx.createLinearGradient(0, 0, 0, -len);
+            lineGrd.addColorStop(0, "#000");
+            lineGrd.addColorStop(1, lineColor || '#f10000');
+
+            ctx.strokeStyle = lineGrd;
+            ctx.lineWidth = 1;
+            ctx.lineCap = 'round';
+            ctx.moveTo(0, 0);
+            var x = len * 0.25;
+            var y = len * 1.2;
+
+            ctx.bezierCurveTo(-x, -y, x, -y, 0, 0);
+            ctx.stroke();
+            ctx.globalAlpha = alpha || 0.4;
+
+            var grd = ctx.createLinearGradient(0, 0, 0, -len);
+            grd.addColorStop(0, "#000");
+            grd.addColorStop(0.6, fillColor || '#f10000');
+            grd.addColorStop(1, fillColor || '#f10000');
+
+            ctx.fillStyle = grd;
             ctx.fill();
             ctx.closePath();
+            ctx.restore();
+        }
+    }, {
+        key: 'drawLine',
+        value: function drawLine(x, y, gx, gy) {
+            var ctx = this.ctx;
+
+            var o = this.options;
+            ctx.save();
+            ctx.beginPath();
+            ctx.lineWidth = 1;
+            ctx.globalAlpha = 0.7;
+            var grd = ctx.createLinearGradient(200, 200, x, y);
+            grd.addColorStop(0, "#000");
+            grd.addColorStop(0.8, '#f10000');
+            grd.addColorStop(1, '#000');
+
+            ctx.strokeStyle = grd;
+            ctx.moveTo(199, 199);
+            ctx.quadraticCurveTo(gx, gy, x, y);
+
+            ctx.stroke();
+            ctx.closePath();
+
+            ctx.restore();
+
+            this.drawArc(x, y);
+        }
+    }, {
+        key: 'drawArc',
+        value: function drawArc(x, y) {
+            var ctx = this.ctx;
+
+            ctx.save();
+            ctx.beginPath();
+
+            ctx.shadowColor = "red";
+            ctx.arc(x, y, 10, 0, Math.PI * 2);
+
+            var grd = ctx.createRadialGradient(x, y, 1, x, y, 10);
+            grd.addColorStop(0, "#f10000");
+            grd.addColorStop(1, "#000");
+
+            ctx.fillStyle = grd;
+
+            ctx.fill();
+            ctx.closePath();
+
             ctx.restore();
         }
     }, {
@@ -547,13 +626,208 @@ var Tree = function () {
         }
     }]);
 
-    return Tree;
+    return Flower;
 }();
 
-/* harmony default export */ __webpack_exports__["a"] = (Tree);
+/* harmony default export */ __webpack_exports__["a"] = (Flower);
 
 /***/ }),
 /* 6 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+var FlowerOcean = function () {
+    function FlowerOcean(options) {
+        _classCallCheck(this, FlowerOcean);
+
+        this.options = Object.assign({
+            canvas: null,
+            color: '#f90003',
+            r: 10
+        }, options);
+        var canvas = this.options.canvas;
+
+        var width = canvas.width,
+            height = canvas.height;
+        this.ctx = this.options.canvas.getContext('2d');
+        var ctx = this.ctx;
+        if (window.devicePixelRatio) {
+            canvas.style.width = width + "px";
+            canvas.style.height = height + "px";
+            canvas.height = height * window.devicePixelRatio;
+            canvas.width = width * window.devicePixelRatio;
+            ctx.scale(window.devicePixelRatio, window.devicePixelRatio);
+        }
+
+        this.init();
+    }
+
+    _createClass(FlowerOcean, [{
+        key: 'init',
+        value: function init() {
+
+            this.drawFlower(-10, 200, 40, 220);
+            this.drawFlower(-30, 160, 200, 200);
+
+            this.drawFlower(-70, 90, 400, 100);
+
+            this.drawFlower(-110, 120, 500, 180);
+
+            this.drawFlower(0, 130, 700, 160);
+
+            this.drawArc(350, 220);
+
+            this.drawArc(460, 240);
+
+            this.drawArc(570, 100);
+
+            this.drawArc(650, 90);
+            // this.drawLine(20, 180, 60, 160);
+            //
+            // this.drawLine(140, 220, 180, 230);
+            //
+            // this.drawLine(130, 160, 150, 180);
+            //
+            // this.drawLine(80, 210, 100, 230);
+        }
+    }, {
+        key: 'drawFlower',
+        value: function drawFlower(start, len, baseX, baseY) {
+            var canvas = this.options.canvas;
+
+            for (var i = 0; i <= 120; i++) {
+                if (i % 10 === 0) {
+                    this.draw(i, len, start, baseX, baseY);
+                }
+            }
+            for (var _i = 0; _i <= 120; _i++) {
+                if (_i % 10 === 0) {
+                    this.draw(_i, len - 30, start, baseX, baseY);
+                }
+            }
+            var endX = void 0;
+            if (Math.random() * 10 - 5 > 0) {
+                endX = baseX - 50;
+            } else {
+                endX = baseX + 50;
+            }
+            var endY = canvas.height - len;
+
+            this.drawLine(baseX, baseY, endX, endY, endX + Math.random() * 20 + 20, baseY + Math.random() * 20 + 20);
+        }
+    }, {
+        key: 'draw',
+        value: function draw(rotate, len, start, baseX, baseY) {
+            var ctx = this.ctx;
+
+            ctx.save();
+            ctx.beginPath();
+            ctx.translate(baseX, baseY);
+            ctx.rotate((rotate + start) * Math.PI / 180);
+            ctx.lineWidth = 1;
+            ctx.lineCap = 'round';
+            ctx.moveTo(0, 0);
+            var x = len * 0.3;
+            var y = len * 1.2;
+
+            ctx.globalAlpha = 0.7;
+            var grd = ctx.createLinearGradient(0, 0, 0, -len);
+            grd.addColorStop(0, "#000");
+            grd.addColorStop(1, '#f10000');
+
+            ctx.strokeStyle = grd;
+
+            ctx.bezierCurveTo(-x, -y, x, -y, 0, 0);
+
+            ctx.stroke();
+
+            var grd2 = ctx.createLinearGradient(0, 0, 0, -len);
+            grd2.addColorStop(0, "#000");
+            grd2.addColorStop(0.6, '#f10000');
+            grd2.addColorStop(1, '#f10000');
+
+            ctx.fillStyle = grd2;
+            ctx.fill();
+            ctx.closePath();
+            ctx.restore();
+        }
+    }, {
+        key: 'drawLine',
+        value: function drawLine(sx, sy, x, y, gx, gy) {
+            var ctx = this.ctx;
+
+            ctx.save();
+            ctx.beginPath();
+            ctx.lineWidth = 1;
+            ctx.globalAlpha = 0.7;
+            var grd = ctx.createLinearGradient(sx, sy, x, y);
+            grd.addColorStop(0, "#000");
+            grd.addColorStop(0.2, '#f10000');
+            grd.addColorStop(1, '#000');
+
+            ctx.strokeStyle = grd;
+            ctx.moveTo(sx - 1, sy - 1);
+            ctx.quadraticCurveTo(gx, gy, x, y);
+
+            ctx.stroke();
+            ctx.closePath();
+
+            ctx.restore();
+        }
+    }, {
+        key: 'drawArc',
+        value: function drawArc(x, y) {
+            var ctx = this.ctx;
+
+            ctx.save();
+            ctx.beginPath();
+
+            ctx.arc(x, y, 10, 0, Math.PI * 2);
+
+            var grd = ctx.createRadialGradient(x, y, 1, x, y, 10);
+            grd.addColorStop(0, "#f10000");
+            grd.addColorStop(1, "#000");
+
+            ctx.fillStyle = grd;
+
+            ctx.fill();
+            ctx.closePath();
+
+            ctx.restore();
+
+            var canvas = this.options.canvas;
+
+            var endX = void 0;
+            if (Math.random() * 10 - 5 > 0) {
+                endX = x - 50;
+            } else {
+                endX = x + 50;
+            }
+            var endY = canvas.height;
+
+            this.drawLine(x + 10, y, endX, endY, endX + Math.random() * 20 + 20, y + Math.random() * 20 + 20);
+        }
+    }, {
+        key: 'clear',
+        value: function clear() {
+            var o = this.options,
+                canvas = o.canvas;
+            var ctx = this.ctx;
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+        }
+    }]);
+
+    return FlowerOcean;
+}();
+
+/* harmony default export */ __webpack_exports__["a"] = (FlowerOcean);
+
+/***/ }),
+/* 7 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -576,7 +850,7 @@ function parseColor(color, toNumber) {
 };
 
 /***/ }),
-/* 7 */
+/* 8 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -586,7 +860,9 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__component_Aqu__ = __webpack_require__(1);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__component_Ball__ = __webpack_require__(2);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__component_Ball3D__ = __webpack_require__(3);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__component_Tree__ = __webpack_require__(5);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__component_Flower__ = __webpack_require__(5);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_6__component_FlowerOcean__ = __webpack_require__(6);
+
 
 
 
@@ -600,7 +876,8 @@ var circleCanvas = document.getElementById('progress-demo');
 var aquCanvas = document.getElementById('aqu-demo');
 var ballCanvas = document.getElementById('ball-demo');
 var ball3dCanvas = document.getElementById('ball3d-demo');
-var treeCanvas = document.getElementById('tree-demo');
+var flowerCanvas = document.getElementById('flower-demo');
+var flowerOceanCanvas = document.getElementById('flower-ocean-demo');
 
 new __WEBPACK_IMPORTED_MODULE_1__component_CircleProgress__["a" /* default */]({
     canvas: circleCanvas
@@ -618,8 +895,12 @@ new __WEBPACK_IMPORTED_MODULE_4__component_Ball3D__["a" /* default */]({
     canvas: ball3dCanvas
 });
 
-new __WEBPACK_IMPORTED_MODULE_5__component_Tree__["a" /* default */]({
-    canvas: treeCanvas
+new __WEBPACK_IMPORTED_MODULE_5__component_Flower__["a" /* default */]({
+    canvas: flowerCanvas
+});
+
+new __WEBPACK_IMPORTED_MODULE_6__component_FlowerOcean__["a" /* default */]({
+    canvas: flowerOceanCanvas
 });
 
 /***/ })
