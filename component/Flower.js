@@ -21,17 +21,17 @@ class Flower {
     }
 
     init() {
-        for (let i = 0; i <= 180; i++) {
+        for (let i = -10; i <= 180; i++) {
             if (i % 10 === 0) {
                 this.draw(i, 180, '#3c00a9', '#2b117f', 0.6);
             }
         }
-        for (let i = 0; i <= 180; i++) {
+        for (let i = -10; i <= 180; i++) {
             if (i % 10 === 0) {
                 this.draw(i, 150);
             }
         }
-        for (let i = 0; i <= 180; i++) {
+        for (let i = -10; i <= 180; i++) {
             if (i % 10 === 0) {
                 this.draw(i, 120);
             }
@@ -52,7 +52,7 @@ class Flower {
         ctx.save();
         ctx.beginPath();
         ctx.translate(200, 200);
-        ctx.rotate(rotate * Math.PI / 180);
+        ctx.rotate(rotate * Math.PI / 170);
 
         var lineGrd = ctx.createLinearGradient(0, 0, 0, -len);
         lineGrd.addColorStop(0, "#000");
@@ -114,7 +114,7 @@ class Flower {
         ctx.arc(x, y, 10, 0, Math.PI * 2);
 
 
-        var grd = ctx.createRadialGradient(x, y, 1, x, y, 10);
+        let grd = ctx.createRadialGradient(x, y, 1, x, y, 10);
         grd.addColorStop(0, "#f10000");
         grd.addColorStop(1, "#000");
 

@@ -63,7 +63,7 @@
 /******/ 	__webpack_require__.p = "/dist/";
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 8);
+/******/ 	return __webpack_require__(__webpack_require__.s = 10);
 /******/ })
 /************************************************************************/
 /******/ ([
@@ -264,7 +264,7 @@ var Ball = function () {
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__base_utils__ = __webpack_require__(7);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__base_utils__ = __webpack_require__(11);
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -504,17 +504,17 @@ var Flower = function () {
     _createClass(Flower, [{
         key: 'init',
         value: function init() {
-            for (var i = 0; i <= 180; i++) {
+            for (var i = -10; i <= 180; i++) {
                 if (i % 10 === 0) {
                     this.draw(i, 180, '#3c00a9', '#2b117f', 0.6);
                 }
             }
-            for (var _i = 0; _i <= 180; _i++) {
+            for (var _i = -10; _i <= 180; _i++) {
                 if (_i % 10 === 0) {
                     this.draw(_i, 150);
                 }
             }
-            for (var _i2 = 0; _i2 <= 180; _i2++) {
+            for (var _i2 = -10; _i2 <= 180; _i2++) {
                 if (_i2 % 10 === 0) {
                     this.draw(_i2, 120);
                 }
@@ -541,7 +541,7 @@ var Flower = function () {
             ctx.save();
             ctx.beginPath();
             ctx.translate(200, 200);
-            ctx.rotate(rotate * Math.PI / 180);
+            ctx.rotate(rotate * Math.PI / 170);
 
             var lineGrd = ctx.createLinearGradient(0, 0, 0, -len);
             lineGrd.addColorStop(0, "#000");
@@ -831,6 +831,477 @@ var FlowerOcean = function () {
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+var Les = function () {
+    function Les(options) {
+        _classCallCheck(this, Les);
+
+        this.options = Object.assign({
+            canvas: null,
+            color: '#f90003',
+            r: 10
+        }, options);
+        var canvas = this.options.canvas;
+
+        var width = canvas.width,
+            height = canvas.height;
+        this.ctx = this.options.canvas.getContext('2d');
+        var ctx = this.ctx;
+        if (window.devicePixelRatio) {
+            canvas.style.width = width + "px";
+            canvas.style.height = height + "px";
+            canvas.height = height * window.devicePixelRatio;
+            canvas.width = width * window.devicePixelRatio;
+            ctx.scale(window.devicePixelRatio, window.devicePixelRatio);
+        }
+
+        this.init();
+    }
+
+    _createClass(Les, [{
+        key: 'init',
+        value: function init() {
+            var x = 200,
+                y = 200;
+            for (var i = 0; i < 360; i++) {
+                if (i % 45 === 0) {
+                    //this.drawRui(x, y, i);
+                    this.drawBan(x, y - 40, 50, i);
+                    this.drawBan(x, y - 40, 50, i, false);
+                    this.drawLine(x, y - 40, 50, i);
+                }
+            }
+        }
+    }, {
+        key: 'drawBan',
+        value: function drawBan(x, y, len, rotate) {
+            var left = arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : true;
+            var ctx = this.ctx;
+
+            ctx.save();
+            ctx.beginPath();
+
+            ctx.translate(x, y);
+            ctx.rotate(rotate * Math.PI * 2 / 360);
+            ctx.moveTo(0, 0);
+            if (left) {
+                ctx.lineTo(-len / 3, -len / 2);
+            } else {
+                ctx.lineTo(len / 3, -len / 2);
+            }
+
+            ctx.lineTo(0, -len);
+
+            var grd = ctx.createLinearGradient(0, -len, 0, 0);
+
+            grd.addColorStop(0, '#fff');
+            grd.addColorStop(0.2, '#141820');
+            grd.addColorStop(1, '#000');
+
+            ctx.fillStyle = grd;
+            ctx.fill();
+
+            ctx.closePath();
+            ctx.restore();
+        }
+    }, {
+        key: 'drawLine',
+        value: function drawLine(x, y, len, rotate) {
+            var ctx = this.ctx;
+
+
+            ctx.save();
+            ctx.beginPath();
+
+            ctx.translate(x, y);
+            ctx.rotate(rotate * Math.PI * 2 / 360);
+
+            ctx.moveTo(0, -len);
+            ctx.lineTo(0, 0);
+            ctx.lineWidth = 1;
+
+            var grd = ctx.createLinearGradient(0, -len, 0, 0);
+
+            grd.addColorStop(0, '#fff');
+            grd.addColorStop(1, '#141820');
+
+            ctx.strokeStyle = grd;
+
+            ctx.stroke();
+
+            ctx.closePath();
+            ctx.restore();
+        }
+    }, {
+        key: 'drawRui',
+        value: function drawRui(x, y, rotate) {
+            var ctx = this.ctx;
+
+            ctx.save();
+            ctx.beginPath();
+            ctx.translate(x, y);
+            ctx.rotate(rotate * Math.PI * 2 / 360);
+            ctx.moveTo(-1.5, 0);
+            ctx.lineTo(1.5, 0);
+            ctx.lineTo(0, -10);
+            var grd = ctx.createLinearGradient(0, 0, 0, -10);
+            grd.addColorStop(0, '#fff');
+            grd.addColorStop(1, '#000');
+
+            ctx.fillStyle = grd;
+            ctx.fill();
+
+            ctx.closePath();
+            ctx.restore();
+        }
+    }, {
+        key: 'drawArc',
+        value: function drawArc(x, y) {}
+    }, {
+        key: 'clear',
+        value: function clear() {
+            var o = this.options,
+                canvas = o.canvas;
+            var ctx = this.ctx;
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+        }
+    }]);
+
+    return Les;
+}();
+
+/* harmony default export */ __webpack_exports__["a"] = (Les);
+
+/***/ }),
+/* 8 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+var Sky = function () {
+    function Sky(options) {
+        _classCallCheck(this, Sky);
+
+        this.options = Object.assign({
+            canvas: null
+        }, options);
+        this.ctx = this.options.canvas.getContext('2d');
+        this.init();
+    }
+
+    _createClass(Sky, [{
+        key: 'createStar',
+        value: function createStar() {
+            return {
+                x: parseInt(Math.random() * 1440),
+                y: parseInt(Math.random() * 200 + 400),
+                floor: 50 + Math.random() * 50
+            };
+        }
+    }, {
+        key: 'init',
+        value: function init() {
+            this.drawBg();
+            //this.drawEarth();
+        }
+    }, {
+        key: 'drawBg',
+        value: function drawBg() {
+            var ctx = this.ctx,
+                canvas = this.options.canvas;
+            ctx.save();
+            ctx.beginPath();
+
+            var grd = ctx.createLinearGradient(canvas.width, canvas.height / 2, 0, canvas.height / 2);
+            grd.addColorStop(0, '#5e1c38');
+            grd.addColorStop(0.5, '#fff');
+            grd.addColorStop(1, '#5e1c38');
+
+            ctx.globalAlpha = 0.7;
+            ctx.fillStyle = grd;
+            ctx.rect(0, 0, canvas.width, canvas.height);
+            ctx.fill();
+
+            ctx.closePath();
+            ctx.restore();
+        }
+    }, {
+        key: 'drawEarth',
+        value: function drawEarth() {
+            var ctx = this.ctx,
+                canvas = this.options.canvas;
+            ctx.save();
+            ctx.beginPath();
+            ctx.arc(canvas.width / 2, canvas.height * 1.5, 500, 0, Math.PI * 2);
+
+            var grd = ctx.createLinearGradient(canvas.width / 2, canvas.height * 1.5, canvas.width / 2, 0);
+            grd.addColorStop(0, '#000');
+            grd.addColorStop(1, '#fff');
+            ctx.fillStyle = grd;
+            ctx.fill();
+            ctx.closePath();
+            ctx.restore();
+        }
+    }, {
+        key: 'drawStar',
+        value: function drawStar(x, y, len) {
+            var rotate = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : 0;
+            var ctx = this.ctx;
+
+            ctx.save();
+            ctx.beginPath();
+
+            ctx.translate(x, y + len);
+            ctx.rotate(rotate * Math.PI / 180);
+
+            var grd = ctx.createLinearGradient(0, 0, 0, -len);
+            grd.addColorStop(0, '#fff');
+            grd.addColorStop(0.5, '#554746');
+            grd.addColorStop(1, '#fff');
+
+            ctx.moveTo(0, -len);
+            ctx.arc(0, -len, len, -Math.PI / 2, -Math.PI / 2 + Math.PI * 2 / 360 * 2);
+
+            ctx.lineTo(0, 0);
+            ctx.fillStyle = grd;
+            ctx.fill();
+
+            ctx.closePath();
+            ctx.restore();
+        }
+    }, {
+        key: 'clear',
+        value: function clear() {
+            var o = this.options,
+                canvas = o.canvas;
+            var ctx = this.ctx;
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+        }
+    }]);
+
+    return Sky;
+}();
+
+/* harmony default export */ __webpack_exports__["a"] = (Sky);
+
+/***/ }),
+/* 9 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+var Table = function () {
+    function Table(options) {
+        _classCallCheck(this, Table);
+
+        this.options = Object.assign({
+            rowWidth: 100,
+            colHeight: 25,
+            rows: 18,
+            cols: 9,
+            lineColor: "#ccc"
+        }, options);
+        var canvas = this.options.canvas;
+
+        var width = canvas.width,
+            height = canvas.height;
+        this.ctx = this.options.canvas.getContext('2d');
+        var ctx = this.ctx;
+        if (window.devicePixelRatio) {
+            canvas.style.width = width + "px";
+            canvas.style.height = height + "px";
+            canvas.height = height * window.devicePixelRatio;
+            canvas.width = width * window.devicePixelRatio;
+            ctx.scale(window.devicePixelRatio, window.devicePixelRatio);
+        }
+        this.ctx = this.options.canvas.getContext('2d');
+        this.cell = {};
+        this.init();
+        this.bindEvent();
+    }
+
+    _createClass(Table, [{
+        key: "init",
+        value: function init() {
+            var o = this.options;
+            var w = o.rowWidth;
+            var h = o.colHeight;
+            var rows = o.rows;
+            var cols = o.cols;
+            var y = 0;
+            for (var row = 0; row < rows; row++) {
+                var x = 0;
+                for (var col = 0; col < cols; col++) {
+                    var cellKey = row + ":" + col;
+                    var p = {
+                        x: x,
+                        y: y
+                    };
+                    this.cell[cellKey] = p;
+                    this.drawCell(p);
+                    x += w;
+                }
+                y += h;
+            }
+            this.drawLine([0, h * rows], [0, 0], [w * cols, 0]);
+        }
+    }, {
+        key: "drawCell",
+        value: function drawCell(sp) {
+            var o = this.options;
+            var w = o.rowWidth;
+            var h = o.colHeight;
+            this.drawLine([sp.x, sp.y + h], [sp.x + w, sp.y + h], [sp.x + w, sp.y]);
+        }
+    }, {
+        key: "drawLine",
+        value: function drawLine(sp, ep, epp) {
+            var ctx = this.ctx;
+            ctx.save();
+            ctx.beginPath();
+            ctx.strokeStyle = this.options.lineColor;
+            ctx.lineWidth = 0.5;
+            ctx.moveTo(sp[0], sp[1]);
+            ctx.lineTo(ep[0], ep[1]);
+            ctx.lineTo(epp[0], epp[1]);
+            ctx.stroke();
+            ctx.closePath();
+            ctx.restore();
+        }
+    }, {
+        key: "bindEvent",
+        value: function bindEvent() {
+            var _this = this;
+
+            var w = this.options.rowWidth;
+            var h = this.options.colHeight;
+            var canvas = this.options.canvas;
+            var offset = {
+                left: canvas.offsetLeft,
+                top: canvas.offsetTop
+            };
+            canvas.addEventListener('mousedown', function (e) {
+                var point = [e.pageX - offset.left, e.pageY - offset.top];
+                var row = parseInt(point[0] / w);
+                var col = parseInt(point[1] / h);
+                console.log(_this.cell[row + ":" + col]);
+            });
+        }
+    }, {
+        key: "clear",
+        value: function clear() {
+            var ctx = this.ctx;
+            var canvas = this.options.canvas;
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+        }
+    }]);
+
+    return Table;
+}();
+
+/* harmony default export */ __webpack_exports__["a"] = (Table);
+
+/***/ }),
+/* 10 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__base_base__ = __webpack_require__(0);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__component_CircleProgress__ = __webpack_require__(4);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__component_Aqu__ = __webpack_require__(1);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__component_Ball__ = __webpack_require__(2);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__component_Ball3D__ = __webpack_require__(3);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__component_Flower__ = __webpack_require__(5);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_6__component_FlowerOcean__ = __webpack_require__(6);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_7__component_Les__ = __webpack_require__(7);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_8__component_Sky__ = __webpack_require__(8);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_9__component_Table__ = __webpack_require__(9);
+
+
+
+
+
+
+
+
+
+
+
+
+
+__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0__base_base__["a" /* raf */])();
+
+switch (window.dpPage) {
+    case 'index':
+        var circleCanvas = document.getElementById('progress-demo');
+        var aquCanvas = document.getElementById('aqu-demo');
+        var ballCanvas = document.getElementById('ball-demo');
+        var ball3dCanvas = document.getElementById('ball3d-demo');
+        var flowerCanvas = document.getElementById('flower-demo');
+        var flowerOceanCanvas = document.getElementById('flower-ocean-demo');
+        var lesCanvas = document.getElementById('les-demo');
+
+        new __WEBPACK_IMPORTED_MODULE_1__component_CircleProgress__["a" /* default */]({
+            canvas: circleCanvas
+        });
+
+        new __WEBPACK_IMPORTED_MODULE_2__component_Aqu__["a" /* default */]({
+            canvas: aquCanvas
+        });
+
+        new __WEBPACK_IMPORTED_MODULE_3__component_Ball__["a" /* default */]({
+            canvas: ballCanvas
+        });
+
+        new __WEBPACK_IMPORTED_MODULE_4__component_Ball3D__["a" /* default */]({
+            canvas: ball3dCanvas
+        });
+
+        new __WEBPACK_IMPORTED_MODULE_5__component_Flower__["a" /* default */]({
+            canvas: flowerCanvas
+        });
+
+        new __WEBPACK_IMPORTED_MODULE_6__component_FlowerOcean__["a" /* default */]({
+            canvas: flowerOceanCanvas
+        });
+
+        new __WEBPACK_IMPORTED_MODULE_7__component_Les__["a" /* default */]({
+            canvas: lesCanvas
+        });
+        break;
+    case 'sky':
+        var skyCanvas = document.getElementById('sky-demo');
+        skyCanvas.width = document.documentElement.clientWidth;
+        skyCanvas.height = document.documentElement.clientHeight;
+        new __WEBPACK_IMPORTED_MODULE_8__component_Sky__["a" /* default */]({
+            canvas: skyCanvas
+        });
+        break;
+    case 'table':
+        var tableCanvas = document.getElementById('table-demo');
+        new __WEBPACK_IMPORTED_MODULE_9__component_Table__["a" /* default */]({
+            canvas: tableCanvas
+        });
+        break;
+    default:
+        break;
+}
+
+/***/ }),
+/* 11 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
 /* harmony export (immutable) */ __webpack_exports__["a"] = parseColor;
 function parseColor(color, toNumber) {
     if (toNumber === true) {
@@ -848,60 +1319,6 @@ function parseColor(color, toNumber) {
         return color;
     }
 };
-
-/***/ }),
-/* 8 */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__base_base__ = __webpack_require__(0);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__component_CircleProgress__ = __webpack_require__(4);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__component_Aqu__ = __webpack_require__(1);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__component_Ball__ = __webpack_require__(2);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__component_Ball3D__ = __webpack_require__(3);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__component_Flower__ = __webpack_require__(5);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_6__component_FlowerOcean__ = __webpack_require__(6);
-
-
-
-
-
-
-
-
-
-__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0__base_base__["a" /* raf */])();
-var circleCanvas = document.getElementById('progress-demo');
-var aquCanvas = document.getElementById('aqu-demo');
-var ballCanvas = document.getElementById('ball-demo');
-var ball3dCanvas = document.getElementById('ball3d-demo');
-var flowerCanvas = document.getElementById('flower-demo');
-var flowerOceanCanvas = document.getElementById('flower-ocean-demo');
-
-new __WEBPACK_IMPORTED_MODULE_1__component_CircleProgress__["a" /* default */]({
-    canvas: circleCanvas
-});
-
-new __WEBPACK_IMPORTED_MODULE_2__component_Aqu__["a" /* default */]({
-    canvas: aquCanvas
-});
-
-new __WEBPACK_IMPORTED_MODULE_3__component_Ball__["a" /* default */]({
-    canvas: ballCanvas
-});
-
-new __WEBPACK_IMPORTED_MODULE_4__component_Ball3D__["a" /* default */]({
-    canvas: ball3dCanvas
-});
-
-new __WEBPACK_IMPORTED_MODULE_5__component_Flower__["a" /* default */]({
-    canvas: flowerCanvas
-});
-
-new __WEBPACK_IMPORTED_MODULE_6__component_FlowerOcean__["a" /* default */]({
-    canvas: flowerOceanCanvas
-});
 
 /***/ })
 /******/ ]);

@@ -84,7 +84,7 @@ class FlowerOcean {
         let y = len * 1.2;
 
         ctx.globalAlpha = 0.7;
-        var grd = ctx.createLinearGradient(0, 0, 0, -len);
+        let grd = ctx.createLinearGradient(0, 0, 0, -len);
         grd.addColorStop(0, "#000");
         grd.addColorStop(1, '#f10000');
 
@@ -112,7 +112,7 @@ class FlowerOcean {
         ctx.beginPath();
         ctx.lineWidth = 1;
         ctx.globalAlpha = 0.7;
-        var grd = ctx.createLinearGradient(sx, sy, x, y);
+        let grd = ctx.createLinearGradient(sx, sy, x, y);
         grd.addColorStop(0, "#000");
         grd.addColorStop(0.2, '#f10000');
         grd.addColorStop(1, '#000');
@@ -137,7 +137,7 @@ class FlowerOcean {
         ctx.arc(x, y, 10, 0, Math.PI * 2);
 
 
-        var grd = ctx.createRadialGradient(x, y, 1, x, y, 10);
+        let grd = ctx.createRadialGradient(x, y, 1, x, y, 10);
         grd.addColorStop(0, "#f10000");
         grd.addColorStop(1, "#000");
 

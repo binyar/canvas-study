@@ -4,11 +4,11 @@ const ExtractTextPlugin = require('extract-text-webpack-plugin');
 
 module.exports = {
     entry: {
-        main: './main'
+        main: './app'
     },
     output: {
         path: path.join(__dirname, './dist'),
-        filename: 'main.js',
+        filename: 'app.js',
         publicPath: "/dist/"
     },
     //plugins: [new webpack.optimize.UglifyJsPlugin()],
