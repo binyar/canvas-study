@@ -174,25 +174,27 @@ class Table {
                     let changed = false, changeDirection = false;
                     let currentCell = this.currentCell;
                     if (x > currentCell.x + currentCell.w) {
-                        if (currentCell.c + 1 < this.range.from.col) {
+                        console.log('right...',this.range)
+                        this.drawRange(true, false, true, this.CONST.COLOR.grey);
+                        if (currentCell.c + 1 <= this.range.to.col) {
                             Object.assign(this.range.from, {
                                 col: currentCell.c + 1
-                            })
+                            });
+                            changeDirection = true;
                         } else {
                             Object.assign(this.range.to, {
                                 col: currentCell.c + 1
                             });
                         }
+
                         changed = true;
                     } else if (x < currentCell.x) {
+                        console.log('left....')
                         this.drawRange(true, false, true, this.CONST.COLOR.grey);
                         if (currentCell.c - 1 < this.range.from.col) {
-
                             Object.assign(this.range.from, {
                                 col: currentCell.c - 1
                             });
-
-
                             changeDirection = true;
                         } else {
                             Object.assign(this.range.to, {
@@ -202,11 +204,18 @@ class Table {
                         changed = true;
                     }
 
-
                     if (y > currentCell.y + currentCell.h) {
-                        Object.assign(this.range.to, {
-                            row: currentCell.r + 1
-                        });
+                        this.drawRange(true, false, true, this.CONST.COLOR.grey);
+                        if (currentCell.r + 1 <= this.range.to.row) {
+                            Object.assign(this.range.from, {
+                                row: currentCell.r + 1
+                            });
+                            changeDirection = true;
+                        } else {
+                            Object.assign(this.range.to, {
+                                row: currentCell.r + 1
+                            });
+                        }
                         changed = true;
                     } else if (y < currentCell.y) {
                         this.drawRange(true, false, true, this.CONST.COLOR.grey);
@@ -214,7 +223,6 @@ class Table {
                             Object.assign(this.range.from, {
                                 row: currentCell.r - 1
                             });
-                            changeDirection = true;
                         } else {
                             Object.assign(this.range.to, {
                                 row: currentCell.r - 1
@@ -228,6 +236,7 @@ class Table {
                         } else {
                             this.currentCell = this.cell[`${this.range.to.row}:${this.range.to.col}`]
                         }
+                        console.log(this.range)
                         this.drawRange();
                     }
                 })
