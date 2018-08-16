@@ -1125,6 +1125,7 @@ var Table = function () {
             height = canvas.height;
         this.ctx = this.options.canvas.getContext('2d');
         var ctx = this.ctx;
+        this.$container = __WEBPACK_IMPORTED_MODULE_0_jquery___default()('#demo');
         if (window.devicePixelRatio) {
             canvas.style.width = width + "px";
             canvas.style.height = height + "px";
@@ -1179,13 +1180,20 @@ var Table = function () {
             this.drawLine([0, h * rows], [[0, 0], [w * cols, 0]]);
         }
     }, {
+        key: 'selectCell',
+        value: function selectCell() {
+            __WEBPACK_IMPORTED_MODULE_0_jquery___default()('.select', this.$container).remove();
+            var cell = this.currentCell;
+            __WEBPACK_IMPORTED_MODULE_0_jquery___default()('<div class="select"/>').css({
+                left: cell.x,
+                top: cell.y,
+                width: cell.w,
+                height: cell.h
+            }).appendTo(this.$container);
+        }
+    }, {
         key: 'drawRange',
         value: function drawRange() {
-            var drawLine = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : true;
-            var drawArea = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : true;
-            var drawCell = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : true;
-            var lineColor = arguments[3];
-
             if (!this.range) {
                 return;
             }
@@ -1194,24 +1202,36 @@ var Table = function () {
                 startCol = this.range.from.col,
                 endCol = this.range.to.col,
                 startCell = this.cell[startRow + ':' + startCol],
-                endCell = this.cell[endRow + ':' + endCol],
-                leftDownCell = this.cell[endRow + ':' + startCol],
-                rightUpCell = this.cell[startRow + ':' + endCol];
-            this.clear(startCell.x, startCell.y, endCell.x + endCell.w - startCell.x, endCell.y + endCell.h - startCell.y);
-            if (drawCell) {
-                for (var row = startRow; row <= endRow; row++) {
-                    for (var col = startCol; col <= endCol; col++) {
-                        var cellKey = row + ':' + col;
-                        this.drawCell(this.cell[cellKey]);
-                    }
-                }
-            }
-            if (drawLine) {
-                this.drawLine([startCell.x, startCell.y], [[leftDownCell.x, leftDownCell.y + leftDownCell.h], [endCell.x + endCell.w, endCell.y + endCell.h], [rightUpCell.x + rightUpCell.w, rightUpCell.y], [startCell.x, startCell.y]], lineColor || this.CONST.COLOR.green);
-            }
-            if (drawArea) {
-                this.drawArea([startCell.x, startCell.y], [[leftDownCell.x, leftDownCell.y + leftDownCell.h], [endCell.x + endCell.w, endCell.y + endCell.h], [rightUpCell.x + rightUpCell.w, rightUpCell.y], [startCell.x, startCell.y]]);
-            }
+                endCell = this.cell[endRow + ':' + endCol];
+            __WEBPACK_IMPORTED_MODULE_0_jquery___default()('.range', this.$container).remove();
+            __WEBPACK_IMPORTED_MODULE_0_jquery___default()('<div class="range"/>').css({
+                left: startCell.x,
+                top: startCell.y,
+                width: endCell.x - startCell.x + endCell.w,
+                height: endCell.y - startCell.y + endCell.h
+            }).appendTo(this.$container);
+
+            //this.clear(startCell.x, startCell.y, endCell.x + endCell.w - startCell.x, endCell.y + endCell.h - startCell.y);
+            // if (drawCell) {
+            //     for (var row = startRow; row <= endRow; row++) {
+            //         for (var col = startCol; col <= endCol; col++) {
+            //             let cellKey = `${row}:${col}`;
+            //             this.drawCell(this.cell[cellKey]);
+            //         }
+            //     }
+            // }
+            // if (drawLine) {
+            //     this.drawLine([startCell.x, startCell.y], [[leftDownCell.x, leftDownCell.y + leftDownCell.h],
+            //         [endCell.x + endCell.w, endCell.y + endCell.h],
+            //         [rightUpCell.x + rightUpCell.w, rightUpCell.y],
+            //         [startCell.x, startCell.y]], lineColor || this.CONST.COLOR.green);
+            // }
+            // if (drawArea) {
+            //     this.drawArea([startCell.x, startCell.y], [[leftDownCell.x, leftDownCell.y + leftDownCell.h],
+            //         [endCell.x + endCell.w, endCell.y + endCell.h],
+            //         [rightUpCell.x + rightUpCell.w, rightUpCell.y],
+            //         [startCell.x, startCell.y]]);
+            // }
         }
     }, {
         key: 'drawArea',
@@ -1268,9 +1288,8 @@ var Table = function () {
                 left: canvas.offsetLeft,
                 top: canvas.offsetTop
             };
-            __WEBPACK_IMPORTED_MODULE_0_jquery___default()(canvas).on({
+            this.$container.on({
                 mousedown: function mousedown(e) {
-                    _this.drawRange(true, false, true, _this.CONST.COLOR.grey);
                     var point = _this.getEventPoint(e, offset);
                     var cell = _this.getNearestCell(point);
                     _this.range = {
@@ -1284,84 +1303,86 @@ var Table = function () {
                         }
                     };
                     _this.currentCell = cell;
-                    __WEBPACK_IMPORTED_MODULE_0_jquery___default()(canvas).off('mousemove.move');
-                    __WEBPACK_IMPORTED_MODULE_0_jquery___default()(canvas).on('mousemove.move', function (e) {
+                    _this.selectCell();
+                    _this.$container.off('mousemove.move');
+                    __WEBPACK_IMPORTED_MODULE_0_jquery___default()('.range', _this.$container).remove();
+                    var currentRow = _this.currentCell.r;
+                    var currentCol = _this.currentCell.c;
+                    var canvasWidth = __WEBPACK_IMPORTED_MODULE_0_jquery___default()(canvas).outerWidth();
+                    var canvasHeight = __WEBPACK_IMPORTED_MODULE_0_jquery___default()(canvas).outerHeight();
+                    _this.$container.on('mousemove.move', function (e) {
                         var p = _this.getEventPoint(e, offset);
                         var x = p[0],
                             y = p[1];
-                        var changed = false,
-                            changeDirection = false;
-                        var currentCell = _this.currentCell;
+                        var changed = false;
+                        var currentCell = _this.cell[currentRow + ':' + currentCol];
+                        if (x >= canvasWidth || y >= canvasHeight) {
+                            _this.$container.off('mousemove.move');
+                            return false;
+                        }
                         if (x > currentCell.x + currentCell.w) {
-                            console.log('right...', _this.range);
-                            _this.drawRange(true, false, true, _this.CONST.COLOR.grey);
-                            if (currentCell.c + 1 <= _this.range.to.col) {
+                            currentCol++;
+                            if (currentCol <= _this.range.to.col) {
                                 Object.assign(_this.range.from, {
-                                    col: currentCell.c + 1
+                                    col: currentCol
                                 });
-                                changeDirection = true;
                             } else {
                                 Object.assign(_this.range.to, {
-                                    col: currentCell.c + 1
+                                    col: currentCol
                                 });
                             }
-
                             changed = true;
                         } else if (x < currentCell.x) {
-                            console.log('left....');
-                            _this.drawRange(true, false, true, _this.CONST.COLOR.grey);
-                            if (currentCell.c - 1 < _this.range.from.col) {
+                            currentCol--;
+                            if (currentCol < _this.range.from.col) {
                                 Object.assign(_this.range.from, {
-                                    col: currentCell.c - 1
+                                    col: currentCol
                                 });
-                                changeDirection = true;
                             } else {
                                 Object.assign(_this.range.to, {
-                                    col: currentCell.c - 1
+                                    col: currentCol
                                 });
                             }
                             changed = true;
                         }
 
                         if (y > currentCell.y + currentCell.h) {
-                            _this.drawRange(true, false, true, _this.CONST.COLOR.grey);
-                            if (currentCell.r + 1 <= _this.range.to.row) {
+                            currentRow++;
+                            if (currentRow <= _this.range.to.row) {
                                 Object.assign(_this.range.from, {
-                                    row: currentCell.r + 1
+                                    row: currentRow
                                 });
-                                changeDirection = true;
                             } else {
                                 Object.assign(_this.range.to, {
-                                    row: currentCell.r + 1
+                                    row: currentRow
                                 });
                             }
                             changed = true;
                         } else if (y < currentCell.y) {
-                            _this.drawRange(true, false, true, _this.CONST.COLOR.grey);
-                            if (currentCell.r - 1 < _this.range.from.row) {
+                            currentRow--;
+                            if (currentRow < _this.range.from.row) {
                                 Object.assign(_this.range.from, {
-                                    row: currentCell.r - 1
+                                    row: currentRow
                                 });
                             } else {
                                 Object.assign(_this.range.to, {
-                                    row: currentCell.r - 1
+                                    row: currentRow
                                 });
                             }
                             changed = true;
                         }
                         if (changed) {
-                            if (changeDirection) {
-                                _this.currentCell = _this.cell[_this.range.from.row + ':' + _this.range.from.col];
-                            } else {
-                                _this.currentCell = _this.cell[_this.range.to.row + ':' + _this.range.to.col];
-                            }
-                            console.log(_this.range);
+                            // if (changeDirection) {
+                            //     this.currentCell = this.cell[`${this.range.from.row}:${this.range.from.col}`]
+                            // } else {
+                            //     this.currentCell = this.cell[`${this.range.to.row}:${this.range.to.col}`]
+                            // }
                             _this.drawRange();
                         }
                     });
                 },
                 mouseup: function mouseup() {
-                    __WEBPACK_IMPORTED_MODULE_0_jquery___default()(canvas).off('mousemove.move');
+                    _this.$container.off('mousemove.move');
                 }
             });
         }
@@ -1382,14 +1403,14 @@ var Table = function () {
                 return;
             }
             var cell = this.cell[cellKey];
-            if (this.prevCell) {
-                this.clear(this.prevCell.x, this.prevCell.y, this.prevCell.w, this.prevCell.h);
-                this.drawCell(this.prevCell, this.CONST.COLOR.grey, true);
-                this.cell[this.prevCell.key].select = false;
-            }
+            // if (this.prevCell) {
+            //     this.clear(this.prevCell.x, this.prevCell.y, this.prevCell.w, this.prevCell.h);
+            //     this.drawCell(this.prevCell, this.CONST.COLOR.grey, true);
+            //     this.cell[this.prevCell.key].select = false;
+            // }
             cell.select = true;
-            this.clear(cell.x, cell.y, cell.w, cell.h);
-            this.drawCell(cell, this.CONST.COLOR.green, true);
+            //this.clear(cell.x, cell.y, cell.w, cell.h);
+            //this.drawCell(cell, this.CONST.COLOR.green, true);
             this.prevCell = cell;
             return cell;
         }

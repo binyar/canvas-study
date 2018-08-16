@@ -18,6 +18,7 @@ class Table {
         let width = canvas.width, height = canvas.height;
         this.ctx = this.options.canvas.getContext('2d');
         const ctx = this.ctx;
+        this.$container = $('#demo');
         if (window.devicePixelRatio) {
             canvas.style.width = width + "px";
             canvas.style.height = height + "px";
@@ -70,7 +71,20 @@ class Table {
         this.drawLine([0, h * rows], [[0, 0], [w * cols, 0]]);
     }
 
-    drawRange(drawLine = true, drawArea = true, drawCell = true, lineColor) {
+    selectCell() {
+        $('.select', this.$container).remove();
+        var cell = this.currentCell;
+        $('<div class="select"/>')
+            .css({
+                left: cell.x,
+                top: cell.y,
+                width: cell.w,
+                height: cell.h
+            })
+            .appendTo(this.$container)
+    }
+
+    drawRange() {
         if (!this.range) {
             return;
         }
@@ -79,30 +93,38 @@ class Table {
             startCol = this.range.from.col,
             endCol = this.range.to.col,
             startCell = this.cell[`${startRow}:${startCol}`],
-            endCell = this.cell[`${endRow}:${endCol}`],
-            leftDownCell = this.cell[`${endRow}:${startCol}`],
-            rightUpCell = this.cell[`${startRow}:${endCol}`];
-        this.clear(startCell.x, startCell.y, endCell.x + endCell.w - startCell.x, endCell.y + endCell.h - startCell.y);
-        if (drawCell) {
-            for (var row = startRow; row <= endRow; row++) {
-                for (var col = startCol; col <= endCol; col++) {
-                    let cellKey = `${row}:${col}`;
-                    this.drawCell(this.cell[cellKey]);
-                }
-            }
-        }
-        if (drawLine) {
-            this.drawLine([startCell.x, startCell.y], [[leftDownCell.x, leftDownCell.y + leftDownCell.h],
-                [endCell.x + endCell.w, endCell.y + endCell.h],
-                [rightUpCell.x + rightUpCell.w, rightUpCell.y],
-                [startCell.x, startCell.y]], lineColor || this.CONST.COLOR.green);
-        }
-        if (drawArea) {
-            this.drawArea([startCell.x, startCell.y], [[leftDownCell.x, leftDownCell.y + leftDownCell.h],
-                [endCell.x + endCell.w, endCell.y + endCell.h],
-                [rightUpCell.x + rightUpCell.w, rightUpCell.y],
-                [startCell.x, startCell.y]]);
-        }
+            endCell = this.cell[`${endRow}:${endCol}`];
+        $('.range', this.$container).remove();
+        $('<div class="range"/>')
+            .css({
+                left: startCell.x,
+                top: startCell.y,
+                width: endCell.x - startCell.x + endCell.w,
+                height: endCell.y - startCell.y + endCell.h
+            })
+            .appendTo(this.$container)
+
+        //this.clear(startCell.x, startCell.y, endCell.x + endCell.w - startCell.x, endCell.y + endCell.h - startCell.y);
+        // if (drawCell) {
+        //     for (var row = startRow; row <= endRow; row++) {
+        //         for (var col = startCol; col <= endCol; col++) {
+        //             let cellKey = `${row}:${col}`;
+        //             this.drawCell(this.cell[cellKey]);
+        //         }
+        //     }
+        // }
+        // if (drawLine) {
+        //     this.drawLine([startCell.x, startCell.y], [[leftDownCell.x, leftDownCell.y + leftDownCell.h],
+        //         [endCell.x + endCell.w, endCell.y + endCell.h],
+        //         [rightUpCell.x + rightUpCell.w, rightUpCell.y],
+        //         [startCell.x, startCell.y]], lineColor || this.CONST.COLOR.green);
+        // }
+        // if (drawArea) {
+        //     this.drawArea([startCell.x, startCell.y], [[leftDownCell.x, leftDownCell.y + leftDownCell.h],
+        //         [endCell.x + endCell.w, endCell.y + endCell.h],
+        //         [rightUpCell.x + rightUpCell.w, rightUpCell.y],
+        //         [startCell.x, startCell.y]]);
+        // }
     }
 
     drawArea(sp, points) {
@@ -151,9 +173,8 @@ class Table {
             left: canvas.offsetLeft,
             top: canvas.offsetTop
         };
-        $(canvas).on({
+        this.$container.on({
             mousedown: e => {
-                this.drawRange(true, false, true, this.CONST.COLOR.grey);
                 let point = this.getEventPoint(e, offset);
                 let cell = this.getNearestCell(point);
                 this.range = {
@@ -167,82 +188,85 @@ class Table {
                     }
                 };
                 this.currentCell = cell;
-                $(canvas).off('mousemove.move');
-                $(canvas).on('mousemove.move', e => {
+                this.selectCell();
+                this.$container.off('mousemove.move');
+                $('.range', this.$container).remove();
+                var currentRow = this.currentCell.r;
+                var currentCol = this.currentCell.c;
+                var canvasWidth = $(canvas).outerWidth();
+                var canvasHeight = $(canvas).outerHeight();
+                this.$container.on('mousemove.move', e => {
                     let p = this.getEventPoint(e, offset);
                     let x = p[0], y = p[1];
-                    let changed = false, changeDirection = false;
-                    let currentCell = this.currentCell;
+                    let changed = false;
+                    let currentCell = this.cell[`${currentRow}:${currentCol}`];
+                    if (x >= canvasWidth || y >= canvasHeight) {
+                        this.$container.off('mousemove.move')
+                        return false
+                    }
                     if (x > currentCell.x + currentCell.w) {
-                        console.log('right...',this.range)
-                        this.drawRange(true, false, true, this.CONST.COLOR.grey);
-                        if (currentCell.c + 1 <= this.range.to.col) {
+                        currentCol++;
+                        if (currentCol <= this.range.to.col) {
                             Object.assign(this.range.from, {
-                                col: currentCell.c + 1
+                                col: currentCol
                             });
-                            changeDirection = true;
                         } else {
                             Object.assign(this.range.to, {
-                                col: currentCell.c + 1
+                                col: currentCol
                             });
                         }
-
                         changed = true;
                     } else if (x < currentCell.x) {
-                        console.log('left....')
-                        this.drawRange(true, false, true, this.CONST.COLOR.grey);
-                        if (currentCell.c - 1 < this.range.from.col) {
+                        currentCol--;
+                        if (currentCol < this.range.from.col) {
                             Object.assign(this.range.from, {
-                                col: currentCell.c - 1
+                                col: currentCol
                             });
-                            changeDirection = true;
                         } else {
                             Object.assign(this.range.to, {
-                                col: currentCell.c - 1
+                                col: currentCol
                             });
                         }
                         changed = true;
                     }
 
                     if (y > currentCell.y + currentCell.h) {
-                        this.drawRange(true, false, true, this.CONST.COLOR.grey);
-                        if (currentCell.r + 1 <= this.range.to.row) {
+                        currentRow++;
+                        if (currentRow <= this.range.to.row) {
                             Object.assign(this.range.from, {
-                                row: currentCell.r + 1
+                                row: currentRow
                             });
-                            changeDirection = true;
                         } else {
                             Object.assign(this.range.to, {
-                                row: currentCell.r + 1
+                                row: currentRow
                             });
                         }
                         changed = true;
                     } else if (y < currentCell.y) {
-                        this.drawRange(true, false, true, this.CONST.COLOR.grey);
-                        if (currentCell.r - 1 < this.range.from.row) {
+                        currentRow--;
+                        if (currentRow < this.range.from.row) {
                             Object.assign(this.range.from, {
-                                row: currentCell.r - 1
+                                row: currentRow
                             });
                         } else {
                             Object.assign(this.range.to, {
-                                row: currentCell.r - 1
+                                row: currentRow
                             });
                         }
                         changed = true;
                     }
                     if (changed) {
-                        if (changeDirection) {
-                            this.currentCell = this.cell[`${this.range.from.row}:${this.range.from.col}`]
-                        } else {
-                            this.currentCell = this.cell[`${this.range.to.row}:${this.range.to.col}`]
-                        }
-                        console.log(this.range)
+                        // if (changeDirection) {
+                        //     this.currentCell = this.cell[`${this.range.from.row}:${this.range.from.col}`]
+                        // } else {
+                        //     this.currentCell = this.cell[`${this.range.to.row}:${this.range.to.col}`]
+                        // }
                         this.drawRange();
                     }
                 })
             },
             mouseup: () => {
-                $(canvas).off('mousemove.move')
+                this.$container.off('mousemove.move')
             }
         });
     }
@@ -261,14 +285,14 @@ class Table {
             return;
         }
         let cell = this.cell[cellKey];
-        if (this.prevCell) {
-            this.clear(this.prevCell.x, this.prevCell.y, this.prevCell.w, this.prevCell.h);
-            this.drawCell(this.prevCell, this.CONST.COLOR.grey, true);
-            this.cell[this.prevCell.key].select = false;
-        }
+        // if (this.prevCell) {
+        //     this.clear(this.prevCell.x, this.prevCell.y, this.prevCell.w, this.prevCell.h);
+        //     this.drawCell(this.prevCell, this.CONST.COLOR.grey, true);
+        //     this.cell[this.prevCell.key].select = false;
+        // }
         cell.select = true;
-        this.clear(cell.x, cell.y, cell.w, cell.h);
-        this.drawCell(cell, this.CONST.COLOR.green, true);
+        //this.clear(cell.x, cell.y, cell.w, cell.h);
+        //this.drawCell(cell, this.CONST.COLOR.green, true);
         this.prevCell = cell;
         return cell;
     }
