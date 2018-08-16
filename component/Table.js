@@ -6,6 +6,34 @@ class Table {
             COLOR: {
                 green: '#0DB3A6',
                 grey: '#CCCCCC'
+            },
+            MENU: {
+                0: "A",
+                1: "B",
+                2: "C",
+                3: "D",
+                4: "E",
+                5: "F",
+                6: "G",
+                7: "H",
+                8: "I",
+                9: "G",
+                10: "K",
+                11: "L",
+                12: "M",
+                13: "N",
+                14: "O",
+                15: "P",
+                16: "Q",
+                17: "R",
+                18: "S",
+                19: "T",
+                20: "U",
+                21: "V",
+                22: "W",
+                23: "X",
+                24: "Y",
+                25: "Z",
             }
         };
         this.options = Object.assign({
@@ -62,6 +90,24 @@ class Table {
                     c: col,
                     key: cellKey
                 };
+                if (row === 0 && col !== 0) {
+                    p.content = {
+                        text: this.CONST.MENU[col - 1],
+                        style: {
+                            background: '#f7f7f7'
+                        }
+                    };
+                    p.isMenu = true
+
+                } else if (col === 0 && row !== 0) {
+                    p.content = {
+                        text: row,
+                        style: {
+                            background: '#f7f7f7'
+                        },
+                    };
+                    p.isMenu = true
+                }
                 this.cell[cellKey] = p;
                 this.drawCell(p);
                 x += w;
@@ -127,12 +173,11 @@ class Table {
         // }
     }
 
-    drawArea(sp, points) {
+    drawArea(sp, points, fill) {
         const ctx = this.ctx;
         ctx.save();
         ctx.beginPath();
-        ctx.fillStyle = this.CONST.COLOR.green;
-        ctx.globalAlpha = 0.08;
+        ctx.fillStyle = fill;
         ctx.moveTo(sp[0], sp[1]);
         points.map(p => {
             ctx.lineTo(p[0], p[1]);
@@ -142,19 +187,23 @@ class Table {
         ctx.restore();
     }
 
-    drawCell(sp, color, isFull = false) {
+    drawCell(sp, bg) {
         let points = [[sp.x + sp.w, sp.y + sp.h], [sp.x + sp.w, sp.y]];
-        if (isFull) {
-            points = points.concat([[sp.x, sp.y], [sp.x, sp.y + sp.h]]);
+        if (sp.content) {
+            if (sp.content.style) {
+                var rangePoints = points.concat([[sp.x, sp.y], [sp.x, sp.y + sp.h]]);
+                this.drawArea([sp.x, sp.y + sp.h], rangePoints, bg || sp.content.style.background)
+            }
+            this.drawText(sp.content.text, sp.x + sp.w / 2, sp.y + sp.h - sp.h / 4);
         }
-        this.drawLine([sp.x, sp.y + sp.h], points, color);
+        this.drawLine([sp.x, sp.y + sp.h], points);
     }
 
-    drawLine(sp, points, color) {
+    drawLine(sp, points) {
         const ctx = this.ctx;
         ctx.save();
         ctx.beginPath();
-        ctx.strokeStyle = color || this.CONST.COLOR.grey;
+        ctx.strokeStyle = this.CONST.COLOR.grey;
         ctx.lineWidth = 1;
         ctx.moveTo(sp[0], sp[1]);
         points.map(p => {
@@ -162,6 +211,15 @@ class Table {
         });
         ctx.stroke();
         ctx.closePath();
+        ctx.restore();
+    }
+
+    drawText(text, x, y) {
+        const ctx = this.ctx;
+        ctx.save();
+        ctx.font = "14px bold";
+        ctx.textAlign = "center";
+        ctx.fillText(text, x, y);
         ctx.restore();
     }
 
@@ -177,6 +235,16 @@ class Table {
             mousedown: e => {
                 let point = this.getEventPoint(e, offset);
                 let cell = this.getNearestCell(point);
+                if (cell.isMenu) {
+                    if (this.prevCellMenu) {
+                        this.clear(this.prevCellMenu.x, this.prevCellMenu.y, this.prevCellMenu.w, this.prevCellMenu.h);
+                        this.drawCell(this.prevCellMenu);
+                    }
+                    this.prevCellMenu = cell;
+                    this.clear(cell.x, cell.y, cell.w, cell.h);
+                    this.drawCell(cell, "#e0e0e0");
+                    return;
+                }
                 this.range = {
                     from: {
                         row: cell.r,
