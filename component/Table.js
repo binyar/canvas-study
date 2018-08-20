@@ -224,6 +224,7 @@ class Table {
     }
 
     bindEvent() {
+        const o = this.options;
         const w = this.options.rowWidth;
         const h = this.options.colHeight;
         const canvas = this.options.canvas;
@@ -236,13 +237,35 @@ class Table {
                 let point = this.getEventPoint(e, offset);
                 let cell = this.getNearestCell(point);
                 if (cell.isMenu) {
-                    if (this.prevCellMenu) {
-                        this.clear(this.prevCellMenu.x, this.prevCellMenu.y, this.prevCellMenu.w, this.prevCellMenu.h);
-                        this.drawCell(this.prevCellMenu);
+                    $('.select', this.$container).remove();
+                    $('.range', this.$container).remove();
+                    //行表头
+                    if (cell.r === 0) {
+                        this.range = {
+                            from: {
+                                row: 1,
+                                col: cell.c
+                            },
+                            to: {
+                                row: o.rows - 1,
+                                col: cell.c
+                            }
+                        };
+
+                    } else if (cell.c === 0) {
+                        this.range = {
+                            from: {
+                                row: cell.r,
+                                col: 1
+                            },
+                            to: {
+                                row: cell.r,
+                                col: o.cols - 1
+                            }
+                        };
                     }
-                    this.prevCellMenu = cell;
-                    this.clear(cell.x, cell.y, cell.w, cell.h);
-                    this.drawCell(cell, "#e0e0e0");
+                    this.setMenuSelect();
+                    this.drawRange();
                     return;
                 }
                 this.range = {
@@ -263,6 +286,7 @@ class Table {
                 var currentCol = this.currentCell.c;
                 var canvasWidth = $(canvas).outerWidth();
                 var canvasHeight = $(canvas).outerHeight();
+                this.setMenuSelect();
                 this.$container.on('mousemove.move', e => {
                     let p = this.getEventPoint(e, offset);
                     let x = p[0], y = p[1];
@@ -329,6 +353,7 @@ class Table {
                         // } else {
                         //     this.currentCell = this.cell[`${this.range.to.row}:${this.range.to.col}`]
                         // }
+                        this.setMenuSelect();
                         this.drawRange();
                     }
                 })
@@ -337,6 +362,42 @@ class Table {
                 this.$container.off('mousemove.move')
             }
         });
+    }
+
+    setMenuSelect() {
+        const o = this.options;
+        const range = this.range;
+        let cell = [];
+        //整列
+        if (range.from.row === 1 && range.to.row === o.rows - 1) {
+            cell.push(this.cell[`0:${range.from.col}`])
+        }
+        //整行
+        else if (range.from.col === 1 && range.to.col === o.cols - 1) {
+            cell.push(this.cell[`${range.from.row}:0`])
+        }
+        //多行多列
+        else {
+            for (let i = range.from.col; i <= range.to.col; i++) {
+                cell.push(this.cell[`0:${i}`])
+            }
+            for (let i = range.from.row; i <= range.to.row; i++) {
+                cell.push(this.cell[`${i}:0`])
+            }
+        }
+
+        this.drawMenu();
+        this.prevCellMenu = cell.slice(0);
+        this.drawMenu(true);
+    }
+
+    drawMenu(withColor = false) {
+        if (this.prevCellMenu) {
+            this.prevCellMenu.map(prevCell => {
+                this.clear(prevCell.x, prevCell.y, prevCell.w, prevCell.h);
+                this.drawCell(prevCell, withColor ? '#e0e0e0' : '');
+            })
+        }
     }
 
 
