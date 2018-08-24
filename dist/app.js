@@ -1111,6 +1111,34 @@ var Table = function () {
             COLOR: {
                 green: '#0DB3A6',
                 grey: '#CCCCCC'
+            },
+            MENU: {
+                0: "A",
+                1: "B",
+                2: "C",
+                3: "D",
+                4: "E",
+                5: "F",
+                6: "G",
+                7: "H",
+                8: "I",
+                9: "G",
+                10: "K",
+                11: "L",
+                12: "M",
+                13: "N",
+                14: "O",
+                15: "P",
+                16: "Q",
+                17: "R",
+                18: "S",
+                19: "T",
+                20: "U",
+                21: "V",
+                22: "W",
+                23: "X",
+                24: "Y",
+                25: "Z"
             }
         };
         this.options = Object.assign({
@@ -1171,6 +1199,23 @@ var Table = function () {
                         c: col,
                         key: cellKey
                     };
+                    if (row === 0 && col !== 0) {
+                        p.content = {
+                            text: this.CONST.MENU[col - 1],
+                            style: {
+                                background: '#f7f7f7'
+                            }
+                        };
+                        p.isMenu = true;
+                    } else if (col === 0 && row !== 0) {
+                        p.content = {
+                            text: row,
+                            style: {
+                                background: '#f7f7f7'
+                            }
+                        };
+                        p.isMenu = true;
+                    }
                     this.cell[cellKey] = p;
                     this.drawCell(p);
                     x += w;
@@ -1235,12 +1280,11 @@ var Table = function () {
         }
     }, {
         key: 'drawArea',
-        value: function drawArea(sp, points) {
+        value: function drawArea(sp, points, fill) {
             var ctx = this.ctx;
             ctx.save();
             ctx.beginPath();
-            ctx.fillStyle = this.CONST.COLOR.green;
-            ctx.globalAlpha = 0.08;
+            ctx.fillStyle = fill;
             ctx.moveTo(sp[0], sp[1]);
             points.map(function (p) {
                 ctx.lineTo(p[0], p[1]);
@@ -1251,22 +1295,24 @@ var Table = function () {
         }
     }, {
         key: 'drawCell',
-        value: function drawCell(sp, color) {
-            var isFull = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : false;
-
+        value: function drawCell(sp, bg) {
             var points = [[sp.x + sp.w, sp.y + sp.h], [sp.x + sp.w, sp.y]];
-            if (isFull) {
-                points = points.concat([[sp.x, sp.y], [sp.x, sp.y + sp.h]]);
+            if (sp.content) {
+                if (sp.content.style) {
+                    var rangePoints = points.concat([[sp.x, sp.y], [sp.x, sp.y + sp.h]]);
+                    this.drawArea([sp.x, sp.y + sp.h], rangePoints, bg || sp.content.style.background);
+                }
+                this.drawText(sp.content.text, sp.x + sp.w / 2, sp.y + sp.h - sp.h / 4);
             }
-            this.drawLine([sp.x, sp.y + sp.h], points, color);
+            this.drawLine([sp.x, sp.y + sp.h], points);
         }
     }, {
         key: 'drawLine',
-        value: function drawLine(sp, points, color) {
+        value: function drawLine(sp, points) {
             var ctx = this.ctx;
             ctx.save();
             ctx.beginPath();
-            ctx.strokeStyle = color || this.CONST.COLOR.grey;
+            ctx.strokeStyle = this.CONST.COLOR.grey;
             ctx.lineWidth = 1;
             ctx.moveTo(sp[0], sp[1]);
             points.map(function (p) {
@@ -1277,10 +1323,21 @@ var Table = function () {
             ctx.restore();
         }
     }, {
+        key: 'drawText',
+        value: function drawText(text, x, y) {
+            var ctx = this.ctx;
+            ctx.save();
+            ctx.font = "14px bold";
+            ctx.textAlign = "center";
+            ctx.fillText(text, x, y);
+            ctx.restore();
+        }
+    }, {
         key: 'bindEvent',
         value: function bindEvent() {
             var _this = this;
 
+            var o = this.options;
             var w = this.options.rowWidth;
             var h = this.options.colHeight;
             var canvas = this.options.canvas;
@@ -1292,6 +1349,37 @@ var Table = function () {
                 mousedown: function mousedown(e) {
                     var point = _this.getEventPoint(e, offset);
                     var cell = _this.getNearestCell(point);
+                    if (cell.isMenu) {
+                        __WEBPACK_IMPORTED_MODULE_0_jquery___default()('.select', _this.$container).remove();
+                        __WEBPACK_IMPORTED_MODULE_0_jquery___default()('.range', _this.$container).remove();
+                        //行表头
+                        if (cell.r === 0) {
+                            _this.range = {
+                                from: {
+                                    row: 1,
+                                    col: cell.c
+                                },
+                                to: {
+                                    row: o.rows - 1,
+                                    col: cell.c
+                                }
+                            };
+                        } else if (cell.c === 0) {
+                            _this.range = {
+                                from: {
+                                    row: cell.r,
+                                    col: 1
+                                },
+                                to: {
+                                    row: cell.r,
+                                    col: o.cols - 1
+                                }
+                            };
+                        }
+                        _this.setMenuSelect();
+                        _this.drawRange();
+                        return;
+                    }
                     _this.range = {
                         from: {
                             row: cell.r,
@@ -1310,6 +1398,7 @@ var Table = function () {
                     var currentCol = _this.currentCell.c;
                     var canvasWidth = __WEBPACK_IMPORTED_MODULE_0_jquery___default()(canvas).outerWidth();
                     var canvasHeight = __WEBPACK_IMPORTED_MODULE_0_jquery___default()(canvas).outerHeight();
+                    _this.setMenuSelect();
                     _this.$container.on('mousemove.move', function (e) {
                         var p = _this.getEventPoint(e, offset);
                         var x = p[0],
@@ -1377,6 +1466,7 @@ var Table = function () {
                             // } else {
                             //     this.currentCell = this.cell[`${this.range.to.row}:${this.range.to.col}`]
                             // }
+                            _this.setMenuSelect();
                             _this.drawRange();
                         }
                     });
@@ -1385,6 +1475,48 @@ var Table = function () {
                     _this.$container.off('mousemove.move');
                 }
             });
+        }
+    }, {
+        key: 'setMenuSelect',
+        value: function setMenuSelect() {
+            var o = this.options;
+            var range = this.range;
+            var cell = [];
+            //整列
+            if (range.from.row === 1 && range.to.row === o.rows - 1) {
+                cell.push(this.cell['0:' + range.from.col]);
+            }
+            //整行
+            else if (range.from.col === 1 && range.to.col === o.cols - 1) {
+                    cell.push(this.cell[range.from.row + ':0']);
+                }
+                //多行多列
+                else {
+                        for (var i = range.from.col; i <= range.to.col; i++) {
+                            cell.push(this.cell['0:' + i]);
+                        }
+                        for (var _i = range.from.row; _i <= range.to.row; _i++) {
+                            cell.push(this.cell[_i + ':0']);
+                        }
+                    }
+
+            this.drawMenu();
+            this.prevCellMenu = cell.slice(0);
+            this.drawMenu(true);
+        }
+    }, {
+        key: 'drawMenu',
+        value: function drawMenu() {
+            var _this2 = this;
+
+            var withColor = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : false;
+
+            if (this.prevCellMenu) {
+                this.prevCellMenu.map(function (prevCell) {
+                    _this2.clear(prevCell.x, prevCell.y, prevCell.w, prevCell.h);
+                    _this2.drawCell(prevCell, withColor ? '#e0e0e0' : '');
+                });
+            }
         }
     }, {
         key: 'getEventPoint',
