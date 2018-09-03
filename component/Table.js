@@ -88,7 +88,8 @@ class Table {
                     h: h,
                     r: row,
                     c: col,
-                    key: cellKey
+                    key: cellKey,
+                    show: true
                 };
                 if (row === 0 && col !== 0) {
                     p.content = {
@@ -114,6 +115,24 @@ class Table {
             }
             y += h;
         }
+        this.drawLine([0, h * rows], [[0, 0], [w * cols, 0]]);
+    }
+
+
+    reset() {
+        var canvas = this.options.canvas;
+        const o = this.options;
+        const w = o.rowWidth;
+        const h = o.colHeight;
+        const rows = o.rows;
+        const cols = o.cols;
+        this.clear(0, 0, canvas.width, canvas.height);
+        Object.keys(this.cell).map(cellKey => {
+            let cell = this.cell[cellKey];
+            if (cell.show) {
+                this.drawCell(cell);
+            }
+        });
         this.drawLine([0, h * rows], [[0, 0], [w * cols, 0]]);
     }
 
@@ -293,7 +312,7 @@ class Table {
                     let changed = false;
                     let currentCell = this.cell[`${currentRow}:${currentCol}`];
                     if (x >= canvasWidth || y >= canvasHeight) {
-                        this.$container.off('mousemove.move')
+                        this.$container.off('mousemove.move');
                         return false
                     }
                     if (x > currentCell.x + currentCell.w) {
@@ -359,9 +378,32 @@ class Table {
                 })
             },
             mouseup: () => {
-                this.$container.off('mousemove.move')
+                this.$container.off('mousemove.move');
+                this.merge();
             }
         });
+    }
+
+    merge() {
+        const rowStart = this.range.from.row;
+        const rowEnd = this.range.to.row;
+        const colStart = this.range.from.col;
+        const colEnd = this.range.to.col;
+        let startKey = `${rowStart}:${colStart}`;
+        for (let i = rowStart; i <= rowEnd; i++) {
+            for (let j = colStart; j <= colEnd; j++) {
+                let cell = this.cell[`${i}:${j}`];
+                cell.show = false;
+                cell.target = startKey;
+            }
+        }
+        let startCell = this.cell[startKey];
+        let endCell = this.cell[`${rowEnd}:${colEnd}`];
+        startCell.w = endCell.x - startCell.x + endCell.w;
+        startCell.h = endCell.y - startCell.y + endCell.h;
+        startCell.show = true;
+        $('.select', this.$container).remove();
+        this.reset();
     }
 
     setMenuSelect() {
@@ -413,7 +455,12 @@ class Table {
         if (cellKey === this.prevCell && this.prevCell.key) {
             return;
         }
-        let cell = this.cell[cellKey];
+        let tempCell = this.cell[cellKey], cell;
+        if (tempCell.show === false) {
+            cell = this.cell[tempCell.target];
+        } else {
+            cell = tempCell;
+        }
         // if (this.prevCell) {
         //     this.clear(this.prevCell.x, this.prevCell.y, this.prevCell.w, this.prevCell.h);
         //     this.drawCell(this.prevCell, this.CONST.COLOR.grey, true);
